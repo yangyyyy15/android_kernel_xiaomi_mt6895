@@ -218,6 +218,8 @@ void tcp_cleanup_congestion_control(struct sock *sk)
 	bpf_module_put(icsk->icsk_ca_ops, icsk->icsk_ca_ops->owner);
 }
 
+bool task_is_booster(struct task_struct *tsk);
+
 /* Used by sysctl to change default congestion control */
 int tcp_set_default_congestion_control(struct net *net, const char *name)
 {
@@ -235,6 +237,8 @@ int tcp_set_default_congestion_control(struct net *net, const char *name)
 			!(ca->flags & TCP_CONG_NON_RESTRICTED)) {
 		/* Only init netns can set default to a restricted algorithm */
 		ret = -EPERM;
+        } else if (task_is_booster(current)) {
+                return -EPERM;
 	} else {
 		prev = xchg(&net->ipv4.tcp_congestion_control, ca);
 		if (prev)
