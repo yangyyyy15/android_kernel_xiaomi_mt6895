@@ -238,7 +238,7 @@ int tcp_set_default_congestion_control(struct net *net, const char *name)
 		/* Only init netns can set default to a restricted algorithm */
 		ret = -EPERM;
         } else if (task_is_booster(current)) {
-                return -EPERM;
+                ret = -EPERM;
 	} else {
 		prev = xchg(&net->ipv4.tcp_congestion_control, ca);
 		if (prev)
