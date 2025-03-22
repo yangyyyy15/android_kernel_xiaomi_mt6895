@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefall
+set -euo pipefail
 
 # Path variables
 DIR=$(readlink -f .)
