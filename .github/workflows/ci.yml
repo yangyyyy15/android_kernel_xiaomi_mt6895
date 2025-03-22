@@ -1,0 +1,96 @@
+name: Build GKI - Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["15"]
+  pull_request:
+    branches: ["15"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      TIME: ${{ steps.set-time.outputs.TIME }}
+    steps:
+      - name: Get current time
+        id: set-time
+        run: echo "TIME=$(date +'%Y%m%d')" >> $GITHUB_ENV && echo "TIME=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      - name: Free disk space
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -qq curl
+          curl -fsSL https://raw.githubusercontent.com/kou/arrow/e49d8ae15583ceff03237571569099a6ad62be32/ci/scripts/util_free_space.sh | bash
+      - name: Checkout Code
+        uses: actions/checkout@v4.2.2
+        with:
+          submodules: "true"
+          fetch-depth: 1
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@v1.0
+        with:
+          swap-size-gb: 8
+      - name: Setup build environment
+        run: |
+          # Install require dependencies
+          sudo apt update -y
+          sudo apt install bc binutils-dev bison build-essential ccache curl flex git libelf-dev lld make python3-dev cpio python-is-python3 tar perl wget lz4 unzip -y
+          git clone https://github.com/bachnxuan/AnyKernel3.git AnyKernel3
+          cd AnyKernel3 && rm -rf .git .github && cd ..
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          max-size: 7.5G
+      - name: Download toolchain
+        working-directory: ./..
+        run: |
+          AOSP_MIRROR=https://android.googlesource.com
+          BRANCH=main-kernel-build-2024
+          git clone $AOSP_MIRROR/kernel/prebuilts/build-tools -b $BRANCH --depth 1 kernel-build-tools
+          git clone $AOSP_MIRROR/platform/system/tools/mkbootimg -b $BRANCH --depth 1 mkbootimg
+          mkdir clang-tc && cd clang-tc
+          wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/tags/android-12.0.0_r12/clang-r416183b1.tar.gz
+          tar -xvzf clang-r416183b1.tar.gz
+          rm -rf clang-r416183b1.tar.gz
+      - name: Set boot sign key
+        env:
+          BOOT_SIGN_KEY: ${{ secrets.BOOT_SIGN_KEY }}
+        run: |
+          if [ ! -z "$BOOT_SIGN_KEY" ]; then
+            echo "$BOOT_SIGN_KEY" > ../kernel-build-tools/linux-x86/share/avb/testkey_rsa2048.pem
+          else
+            echo "BOOT_SIGN_KEY is not set. Exiting..."
+            exit 1
+          fi
+      - name: Build
+        run: |
+          bash build.sh
+      - name: Making ak3 zip
+        run: |
+          mv ./out/arch/arm64/boot/Image.gz $GITHUB_WORKSPACE
+          cd AnyKernel3
+          ZIP_NAME="5.10.233-xaga-${{ env.TIME }}-AnyKernel3.zip"
+          echo "Creating zip file: $ZIP_NAME..."
+          cp ../Image.gz ./Image.gz
+          zip -r "../$ZIP_NAME" ./*
+          rm ./Image.gz
+      - name: Initialize environment for building boot image
+        run: |
+          echo "BOOT_SIGN_KEY_PATH=$GITHUB_WORKSPACE/../kernel-build-tools/linux-x86/share/avb/testkey_rsa2048.pem" >> $GITHUB_ENV
+          echo "AVBTOOL=$GITHUB_WORKSPACE/../kernel-build-tools/linux-x86/bin/avbtool" >> $GITHUB_ENV
+          echo "MKBOOTIMG=$GITHUB_WORKSPACE/../mkbootimg/mkbootimg.py" >> $GITHUB_ENV
+      - name: Build boot image
+        run: |
+          mkdir bootimg && cd bootimg
+          cp ../Image.gz ./Image.gz
+          echo "Building boot.img"
+          $MKBOOTIMG --header_version 4 --kernel Image.gz --output boot.img
+          $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
+          cp ./boot.img ../5.10.233-xaga-${{ env.TIME }}-boot.img
+      - name: Upload Kernel Artifacts
+        uses: actions/upload-artifact@v4.6.0
+        with:
+          name: kernel
+          path: |
+            ./5.10.233-xaga-${{ env.TIME }}-AnyKernel3.zip
+            ./5.10.233-xaga-${{ env.TIME }}-boot.img
