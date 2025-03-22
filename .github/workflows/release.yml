@@ -33,6 +33,12 @@ jobs:
           sudo apt install bc binutils-dev bison build-essential ccache curl flex git libelf-dev lld make python3-dev cpio python-is-python3 tar perl wget lz4 unzip -y
           git clone https://github.com/bachnxuan/AnyKernel3.git AnyKernel3
           cd AnyKernel3 && rm -rf .git .github && cd ..
+          # Initialize KernelSU-Next submodule
+          git submodule update --init --recursive
+          cd KernelSU-Next
+          git fetch --unshallow origin next-susfs-dev:next-susfs-dev
+          git checkout next-susfs-dev
+          git pull origin next-susfs-dev
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
