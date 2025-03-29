@@ -75,7 +75,7 @@ jobs:
         run: |
           mv ./out/arch/arm64/boot/Image.gz $GITHUB_WORKSPACE
           cd AnyKernel3
-          ZIP_NAME="5.10.233-xaga-${{ env.TIME }}-AnyKernel3.zip"
+          ZIP_NAME="android12-5.10.X-lts-${{ env.TIME }}-AnyKernel3.zip"
           echo "Creating zip file: $ZIP_NAME..."
           cp ../Image.gz ./Image.gz
           zip -r "../$ZIP_NAME" ./*
@@ -92,11 +92,11 @@ jobs:
           echo "Building boot.img"
           $MKBOOTIMG --header_version 4 --kernel Image.gz --output boot.img
           $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
-          cp ./boot.img ../5.10.233-xaga-${{ env.TIME }}-boot.img
+          cp ./boot.img ../android12-5.10.X-lts-${{ env.TIME }}-boot.img
       - name: Upload Kernel Artifacts
         uses: actions/upload-artifact@v4.6.0
         with:
           name: kernel
           path: |
-            ./5.10.233-xaga-${{ env.TIME }}-AnyKernel3.zip
-            ./5.10.233-xaga-${{ env.TIME }}-boot.img
+            ./android12-5.10.X-lts-${{ env.TIME }}-AnyKernel3.zip
+            ./android12-5.10.X-lts-${{ env.TIME }}-boot.img
