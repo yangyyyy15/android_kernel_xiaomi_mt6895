@@ -3,9 +3,9 @@ name: Build GKI - Release
 on:
   workflow_dispatch:
   push:
-    branches: ["15"]
+    branches: ["rebase"]
   pull_request:
-    branches: ["15"]
+    branches: ["rebase"]
 
 jobs:
   build:
