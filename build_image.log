@@ -1,0 +1,46 @@
+===== Creating AnyKernel3 package =====
+Creating zip file: android12-5.10.X-lts-20250410-AnyKernel3.zip...
+updating: Image.gz (deflated 1%)
+updating: LICENSE (deflated 73%)
+updating: META-INF/ (stored 0%)
+updating: META-INF/com/ (stored 0%)
+updating: META-INF/com/google/ (stored 0%)
+updating: META-INF/com/google/android/ (stored 0%)
+updating: META-INF/com/google/android/updater-script (deflated 1%)
+updating: META-INF/com/google/android/update-binary (deflated 73%)
+updating: anykernel.sh (deflated 54%)
+updating: banner (deflated 43%)
+updating: tools/ (stored 0%)
+updating: tools/lptools_static (deflated 52%)
+updating: tools/snapshotupdater_static (deflated 53%)
+updating: tools/httools_static (deflated 52%)
+updating: tools/ak3-core.sh (deflated 74%)
+updating: tools/magiskpolicy (deflated 51%)
+updating: tools/magiskboot (deflated 40%)
+updating: tools/fec (deflated 53%)
+updating: tools/busybox (deflated 39%)
+===== Building boot image =====
+Checking if GKI kernel URL is reachable: https://dl.google.com/android/gki/gki-certified-boot-android12-5.10-2025-02_r1.zip
+[+] Downloading from GKI_URL
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0 13 19.8M   13 2847k    0     0  2345k      0  0:00:08  0:00:01  0:00:07 2345k 33 19.8M   33 6719k    0     0  3026k      0  0:00:06  0:00:02  0:00:04 3025k 44 19.8M   44 9135k    0     0  2786k      0  0:00:07  0:00:03  0:00:04 2786k 71 19.8M   71 14.1M    0     0  3423k      0  0:00:05  0:00:04  0:00:01 3422k100 19.8M  100 19.8M    0     0  3989k      0  0:00:05  0:00:05 --:--:-- 4220k
+Unzipping the downloaded kernel...
+Archive:  gki-kernel.zip
+  inflating: boot-5.10.img           
+Unpacking boot.img...
+Unpacking using: /root/xaga_kernel/kernel/xiaomi/android_kernel_xiaomi_mt6895/bootimgs/boot-5.10.img
+Running unpack_bootimg.py...
+boot magic: ANDROID!
+kernel_size: 46853988
+ramdisk size: 1380088
+os version: 12.0.0
+os patch level: 2099-12
+boot image header version: 4
+command line args: 
+boot.img signature size: 4096
+Building boot.img
+===== Build Complete =====
+Output files:
+ - /root/xaga_kernel/kernel/xiaomi/android_kernel_xiaomi_mt6895/android12-5.10.X-lts-20250410-AnyKernel3.zip
+ - /root/xaga_kernel/kernel/xiaomi/android_kernel_xiaomi_mt6895/android12-5.10.X-lts-20250410-boot.img
